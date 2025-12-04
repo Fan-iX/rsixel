@@ -3,6 +3,12 @@
 #' A graphics device that outputs SIXEL sequences to the console when closed.
 #' This device wraps the png() device and encodes the output as SIXEL.
 #'
+#' @details
+#' This package overrides the `dev.off` function in the global environment when
+#' attached to intercept device close events. The original `dev.off` behavior is
+#' preserved for non-sixel devices. When the package is detached, any user-defined
+#' `dev.off` function that existed before package attachment is restored.
+#'
 #' @param width integer, width of the output image in pixels. Default is 480.
 #' @param height integer, height of the output image in pixels. Default is 480.
 #' @param max.colors integer, max colors of the palette. The maximum is 256.
@@ -127,14 +133,20 @@ sixel <- function(
 }
 
 .onAttach <- function(libname, pkgname) {
+  # Store any user-defined dev.off before overriding
+  if (exists("dev.off", envir = .GlobalEnv, inherits = FALSE)) {
+    .sixel_env$user_dev.off <- get("dev.off", envir = .GlobalEnv)
+  }
   # Override dev.off when the package is attached
   assign("dev.off", .sixel_dev_off, envir = .GlobalEnv)
 }
 
 .onDetach <- function(libpath) {
-  # Remove the overridden dev.off from .GlobalEnv
-  # The original grDevices::dev.off will be used again
-  if (exists("dev.off", envir = .GlobalEnv, inherits = FALSE)) {
+  # Restore user's dev.off if they had one, otherwise just remove ours
+  if (!is.null(.sixel_env$user_dev.off)) {
+    assign("dev.off", .sixel_env$user_dev.off, envir = .GlobalEnv)
+    .sixel_env$user_dev.off <- NULL
+  } else if (exists("dev.off", envir = .GlobalEnv, inherits = FALSE)) {
     rm("dev.off", envir = .GlobalEnv)
   }
 }
