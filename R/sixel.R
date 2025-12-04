@@ -74,14 +74,19 @@ sixel <- function(
 #' @return The number and name of the new active device (invisible).
 #' @keywords internal
 .sixel_dev_off <- function(which = grDevices::dev.cur()) {
+  # Validate device number - dev.cur() returns 1 for null device
+  if (which == 1) {
+    stop("cannot shut down device 1 (the null device)", call. = FALSE)
+  }
+
   dev_key <- as.character(which)
 
   # Check if this is a sixel device
   if (dev_key %in% names(.sixel_env$devices)) {
     device_info <- .sixel_env$devices[[dev_key]]
 
-    # Close the underlying png device first
-    result <- grDevices::dev.off(which)
+    # Close the underlying png device first using the stored original function
+    result <- .sixel_env$original_dev.off(which)
 
     # Read and encode the PNG file
     if (file.exists(device_info$file)) {
@@ -120,20 +125,14 @@ sixel <- function(
 
     invisible(result)
   } else {
-    # Not a sixel device, just call the original dev.off
-    grDevices::dev.off(which)
+    # Not a sixel device, call the stored original dev.off
+    .sixel_env$original_dev.off(which)
   }
 }
 
-# Override dev.off in the package namespace when package is loaded
+# Store the original dev.off when package is loaded
 .onLoad <- function(libname, pkgname) {
-  # Store the original dev.off
   .sixel_env$original_dev.off <- grDevices::dev.off
-
-  # Replace dev.off with our version
-  # This needs to be done carefully to avoid issues
-  # We use assignInNamespace to override dev.off in grDevices
-  # Note: This is a bit hacky but is a common pattern for graphics device packages
 }
 
 .onAttach <- function(libname, pkgname) {
@@ -142,8 +141,9 @@ sixel <- function(
 }
 
 .onDetach <- function(libpath) {
-  # Restore the original dev.off when the package is detached
-  if (exists("dev.off", envir = .GlobalEnv)) {
+  # Remove the overridden dev.off from .GlobalEnv
+  # The original grDevices::dev.off will be used again
+  if (exists("dev.off", envir = .GlobalEnv, inherits = FALSE)) {
     rm("dev.off", envir = .GlobalEnv)
   }
 }
