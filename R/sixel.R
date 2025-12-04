@@ -90,18 +90,9 @@ sixel <- function(
 
     # Read and encode the PNG file
     if (file.exists(device_info$file)) {
-      # Use the existing load_image and sixelEncode functions
+      # Use the existing load_image and blend_alpha functions
       image <- load_image(device_info$file)
-
-      # Apply background blending if there's an alpha channel
-      background <- grDevices::col2rgb(device_info$background) / 255
-      if (dim(image)[3] == 4) {
-        alpha <- image[, , 4]
-        image <- image[, , 1:3]
-        image[, , 1] <- image[, , 1] * alpha + background[1] * (1 - alpha)
-        image[, , 2] <- image[, , 2] * alpha + background[2] * (1 - alpha)
-        image[, , 3] <- image[, , 3] * alpha + background[3] * (1 - alpha)
-      }
+      image <- blend_alpha(image, device_info$background)
 
       # Encode to sixel
       sixel_sequence <- sixelEncode(
