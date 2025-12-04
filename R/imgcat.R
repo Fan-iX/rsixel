@@ -12,6 +12,19 @@ load_image <- function(file){
   x
 }
 
+# Blend image with background color for pixels with transparency
+blend_alpha <- function(image, background) {
+  background <- grDevices::col2rgb(background) / 255
+  if (dim(image)[3] == 4) {
+    alpha <- image[, , 4]
+    image <- image[, , 1:3]
+    image[, , 1] <- image[, , 1] * alpha + background[1] * (1 - alpha)
+    image[, , 2] <- image[, , 2] * alpha + background[2] * (1 - alpha)
+    image[, , 3] <- image[, , 3] * alpha + background[3] * (1 - alpha)
+  }
+  image
+}
+
 #' Create SIXEL escape sequence for image file
 #'
 #' Create SIXEL escape sequence for image file. `jpeg`, `png` or `magick` packages 
@@ -28,7 +41,7 @@ load_image <- function(file){
 #' @param file A connection, or a character string naming the file to print to.
 #' This parameter will be passed to `cat`
 #'
-#' @return None (invisible ‘NULL’).
+#' @return None (invisible 'NULL').
 #' @export
 #'
 #' @examples
@@ -42,14 +55,7 @@ imgcat <- function(
   file = ""
 ) {
   image <- load_image(path)
-  background <- col2rgb(background) / 255
-  if(dim(image)[3] == 4) {
-    alpha <- image[,,4]
-    image <- image[,,1:3]
-    image[,,1] <- image[,,1] * alpha + background[1] * (1 - alpha)
-    image[,,2] <- image[,,2] * alpha + background[2] * (1 - alpha)
-    image[,,3] <- image[,,3] * alpha + background[3] * (1 - alpha)
-  }
+  image <- blend_alpha(image, background)
   sixel_sequence <- sixelEncode(image, max.colors, iter.max)
   cat(sixel_sequence, file=file)
   if(file == "") { cat("\n") }

@@ -12,6 +12,21 @@ You may also need `jpeg`, `png` or `magick` package to read image files.
 
 ## Usage
 
+### SIXEL graphics device
+
+The `sixel()` function creates a graphics device that outputs SIXEL sequences
+to the console when closed. This allows you to display plots directly in
+terminals that support SIXEL graphics.
+
+```r
+library(rsixel)
+sixel()
+plot(c(1, 2))
+dev.off()
+```
+
+The sixel sequence of the plot will be printed to the console after `dev.off()`.
+
 ### Encoding an image to sixel format
 
 ```r
