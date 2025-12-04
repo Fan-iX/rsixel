@@ -1,3 +1,11 @@
+/*
+ * rsixel - SIXEL graphics device for R
+ * 
+ * This module provides C++ functions to track sixel graphics devices
+ * and their associated parameters. When a sixel device is closed,
+ * the stored parameters are used to encode the output as SIXEL.
+ */
+
 #include <R.h>
 #include <Rinternals.h>
 #include <R_ext/GraphicsEngine.h>
@@ -18,18 +26,34 @@ typedef struct SixelDeviceInfo {
 static SixelDeviceInfo *sixel_device_list = NULL;
 
 // Add a device to track
-static void add_sixel_device(int dev_num, const char *filename, int max_colors,
-                             int iter_max, const char *background, 
-                             const char *output) {
+// Returns 0 on success, -1 on memory allocation failure
+static int add_sixel_device(int dev_num, const char *filename, int max_colors,
+                            int iter_max, const char *background, 
+                            const char *output) {
     SixelDeviceInfo *info = (SixelDeviceInfo *)malloc(sizeof(SixelDeviceInfo));
+    if (info == NULL) {
+        return -1;
+    }
+    
     info->device_num = dev_num;
     info->filename = strdup(filename);
-    info->max_colors = max_colors;
-    info->iter_max = iter_max;
     info->background = strdup(background);
     info->output = strdup(output);
+    
+    // Check for strdup failures
+    if (info->filename == NULL || info->background == NULL || info->output == NULL) {
+        if (info->filename != NULL) free(info->filename);
+        if (info->background != NULL) free(info->background);
+        if (info->output != NULL) free(info->output);
+        free(info);
+        return -1;
+    }
+    
+    info->max_colors = max_colors;
+    info->iter_max = iter_max;
     info->next = sixel_device_list;
     sixel_device_list = info;
+    return 0;
 }
 
 // Free device info
@@ -42,10 +66,27 @@ static void free_sixel_device_info(SixelDeviceInfo *info) {
     }
 }
 
-// Register a sixel device for tracking
+/*
+ * Register a sixel device for tracking.
+ * 
+ * Parameters:
+ *   dev_num: Device number (integer)
+ *   filename: Path to temporary PNG file (character)
+ *   max_colors: Maximum colors for SIXEL palette (integer)
+ *   iter_max: Maximum iterations for k-means (integer)
+ *   background: Background color for alpha blending (character)
+ *   output: Output file path, "" for stdout (character)
+ * 
+ * Returns R_NilValue on success, throws an error on failure.
+ */
 extern "C" SEXP C_sixel_register(SEXP dev_num, SEXP filename, SEXP max_colors, 
                                   SEXP iter_max, SEXP background, SEXP output) {
-    add_sixel_device(
+    // Validate inputs
+    if (Rf_length(filename) < 1 || Rf_length(background) < 1 || Rf_length(output) < 1) {
+        Rf_error("Invalid input: string parameters must have length >= 1");
+    }
+    
+    int result = add_sixel_device(
         Rf_asInteger(dev_num),
         CHAR(STRING_ELT(filename, 0)),
         Rf_asInteger(max_colors),
@@ -53,10 +94,18 @@ extern "C" SEXP C_sixel_register(SEXP dev_num, SEXP filename, SEXP max_colors,
         CHAR(STRING_ELT(background, 0)),
         CHAR(STRING_ELT(output, 0))
     );
+    
+    if (result != 0) {
+        Rf_error("Failed to allocate memory for sixel device");
+    }
+    
     return R_NilValue;
 }
 
-// Get list of registered device numbers
+/*
+ * Get list of registered device numbers.
+ * Returns an integer vector of device numbers.
+ */
 extern "C" SEXP C_sixel_get_devices() {
     // Count devices
     int n = 0;
@@ -78,7 +127,14 @@ extern "C" SEXP C_sixel_get_devices() {
     return result;
 }
 
-// Get info for a specific device and remove it from the list
+/*
+ * Get info for a specific device and remove it from the list.
+ * 
+ * Parameters:
+ *   dev_num: Device number to look up (integer)
+ * 
+ * Returns a named list with device parameters, or R_NilValue if not found.
+ */
 extern "C" SEXP C_sixel_pop_device(SEXP dev_num) {
     int target = Rf_asInteger(dev_num);
     
@@ -115,12 +171,18 @@ extern "C" SEXP C_sixel_pop_device(SEXP dev_num) {
     return R_NilValue;
 }
 
-// Check if we have any registered devices
+/*
+ * Check if we have any registered devices.
+ * Returns TRUE if there are registered devices, FALSE otherwise.
+ */
 extern "C" SEXP C_sixel_has_devices() {
     return Rf_ScalarLogical(sixel_device_list != NULL);
 }
 
-// Register routines
+/*
+ * R package initialization function.
+ * Registers the C callable functions with R.
+ */
 static const R_CallMethodDef CallEntries[] = {
     {"C_sixel_register", (DL_FUNC) &C_sixel_register, 6},
     {"C_sixel_get_devices", (DL_FUNC) &C_sixel_get_devices, 0},
