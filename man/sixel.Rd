@@ -40,12 +40,6 @@ The device number (invisible).
 A graphics device that outputs SIXEL sequences to the console when closed.
 This device wraps the png() device and encodes the output as SIXEL.
 }
-\details{
-This package overrides the \code{dev.off} function in the global environment when
-attached to intercept device close events. The original \code{dev.off} behavior is
-preserved for non-sixel devices. When the package is detached, any user-defined
-\code{dev.off} function that existed before package attachment is restored.
-}
 \examples{
 \dontrun{
 sixel()

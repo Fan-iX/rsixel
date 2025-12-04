@@ -3,3 +3,4 @@
 export(imgcat)
 export(sixel)
 export(sixelEncode)
+useDynLib(rsixel, .registration = TRUE)
