@@ -19,7 +19,7 @@ sixelDecode <- function(data) {
   # Remove escape sequences at start and end
   # Start: \x1bP..q or \x1bPq (DCS with optional parameters)
   # End: \x1b\\
-  data <- gsub("^\x1b[P][^q]*q", "", data)
+  data <- gsub("^\x1bP[^q]*q", "", data)
   data <- gsub("\x1b\\\\$", "", data)
 
   # Parse the raster attributes "Pan;Pad;Ph;Pv where Ph=width, Pv=height
@@ -71,6 +71,20 @@ sixelDecode <- function(data) {
   # Remove all palette definitions from data for parsing
   data <- gsub("#[0-9]+;[12];[0-9]+;[0-9]+;[0-9]+", "", data)
 
+  # Helper function to set pixels for a sixel value at current position
+  set_sixel_pixels <- function(sixel_value, color, base_row, col) {
+    for (bit in 0:5) {
+      if (bitwAnd(sixel_value, 2L^bit) > 0L) {
+        row <- base_row + bit
+        if (row <= height && col <= width) {
+          img[row, col, 1] <<- color[1]
+          img[row, col, 2] <<- color[2]
+          img[row, col, 3] <<- color[3]
+        }
+      }
+    }
+  }
+
   # Split by band separators (- or $)
   # $ = carriage return (go to start of current band)
   # - = newline (move to next 6-row band)
@@ -92,7 +106,9 @@ sixelDecode <- function(data) {
       while (j <= n && grepl("[0-9]", chars[j])) {
         j <- j + 1L
       }
-      current_color <- paste(chars[(i + 1L):(j - 1L)], collapse = "")
+      if (j > i + 1L) {
+        current_color <- paste(chars[(i + 1L):(j - 1L)], collapse = "")
+      }
       i <- j
     } else if (ch == "!") {
       # RLE: !count<char>
@@ -100,35 +116,35 @@ sixelDecode <- function(data) {
       while (j <= n && grepl("[0-9]", chars[j])) {
         j <- j + 1L
       }
-      count <- as.integer(paste(chars[(i + 1L):(j - 1L)], collapse = ""))
-      if (j <= n) {
-        sixel_char <- chars[j]
-        sixel_value <- utf8ToInt(sixel_char) - 63L
-        if (sixel_value >= 0L && sixel_value <= 63L) {
-          # Apply the sixel to 'count' columns
-          color <- palette[[current_color]]
-          if (!is.null(color)) {
-            base_row <- current_band * 6L + 1L
-            for (k in seq_len(count)) {
-              if (x <= width) {
-                for (bit in 0:5) {
-                  if (bitwAnd(sixel_value, 2L^bit) > 0L) {
-                    row <- base_row + bit
-                    if (row <= height) {
-                      img[row, x, 1] <- color[1]
-                      img[row, x, 2] <- color[2]
-                      img[row, x, 3] <- color[3]
-                    }
+      # Validate we have digits for the count
+      if (j > i + 1L) {
+        count <- as.integer(paste(chars[(i + 1L):(j - 1L)], collapse = ""))
+        if (!is.na(count) && count > 0L && j <= n) {
+          sixel_char <- chars[j]
+          sixel_value <- utf8ToInt(sixel_char) - 63L
+          if (sixel_value >= 0L && sixel_value <= 63L) {
+            # Apply the sixel to 'count' columns
+            if (!is.null(current_color)) {
+              color <- palette[[current_color]]
+              if (!is.null(color)) {
+                base_row <- current_band * 6L + 1L
+                for (k in seq_len(count)) {
+                  if (x <= width) {
+                    set_sixel_pixels(sixel_value, color, base_row, x)
                   }
+                  x <- x + 1L
                 }
+              } else {
+                x <- x + count
               }
-              x <- x + 1L
+            } else {
+              x <- x + count
             }
-          } else {
-            x <- x + count
           }
+          i <- j + 1L
+        } else {
+          i <- j
         }
-        i <- j + 1L
       } else {
         i <- j
       }
@@ -152,16 +168,7 @@ sixelDecode <- function(data) {
           color <- palette[[current_color]]
           if (!is.null(color)) {
             base_row <- current_band * 6L + 1L
-            for (bit in 0:5) {
-              if (bitwAnd(sixel_value, 2L^bit) > 0L) {
-                row <- base_row + bit
-                if (row <= height) {
-                  img[row, x, 1] <- color[1]
-                  img[row, x, 2] <- color[2]
-                  img[row, x, 3] <- color[3]
-                }
-              }
-            }
+            set_sixel_pixels(sixel_value, color, base_row, x)
           }
         }
         x <- x + 1L
