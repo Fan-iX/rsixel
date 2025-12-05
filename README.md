@@ -53,4 +53,15 @@ imgcat("mpg.png")
 
 ### Decoding sixel sequence to an image
 
-not implemented yet.
+```r
+library(rsixel)
+# Read SIXEL data from a file
+sixel_data <- paste(readLines("path/to/image.six"), collapse = "\n")
+# Decode to RGB array
+image <- sixelDecode(sixel_data)
+# Save as PNG
+png::writePNG(image, "output.png")
+```
+
+The `sixelDecode` function returns a three dimensional RGB array with values 
+ranging from 0 to 1, in the same format as `png::readPNG` or `jpeg::readJPEG`.
