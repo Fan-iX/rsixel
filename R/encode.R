@@ -36,7 +36,7 @@ sixelEncode <- function(image, max.colors = 256, iter.max = 10) {
   colors <- apply(palette[, 1:3], 1, paste, collapse = ";")
   str_pal <- paste(paste0("#", seq_along(colors) - 1, ";2;", colors), collapse = "")
   str_data <- lapply(split(seq_len(height), (seq_len(height) - 1) %/% 6), function(l) {
-      band <- data[l, ]
+      band <- data[l, , drop = FALSE]
       str_band <- lapply(unique(as.vector(band)), function(c) {
         s <- rle(apply(band == c, 2, function(v) {
           sum(2 ^ (which(v) - 1))
