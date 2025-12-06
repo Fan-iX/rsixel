@@ -22,7 +22,7 @@ Create SIXEL escape sequence from image data. Quantization is done
 by k-means clustering.
 }
 \examples{
-img <- jpeg::readJPEG(system.file("img", "Rlogo.jpg", package="jpeg"))
+img <- png::readPNG(system.file("img", "Rlogo.png", package="png"))
 cat(sixelEncode(img, 4))
 
 }

@@ -3,6 +3,8 @@
 #' Create SIXEL escape sequence from image data. Quantization is done 
 #' by k-means clustering.
 #'
+#' @importFrom stats kmeans
+#'
 #' @param image a three dimensional RGB array with values ranging from 0 to 1.
 #' @param max.colors integer, max colors of the palette. The maximum is 256. 
 #' Default is 256.
@@ -12,7 +14,7 @@
 #' @export
 #'
 #' @examples
-#' img <- jpeg::readJPEG(system.file("img", "Rlogo.jpg", package="jpeg"))
+#' img <- png::readPNG(system.file("img", "Rlogo.png", package="png"))
 #' cat(sixelEncode(img, 4))
 #'
 sixelEncode <- function(image, max.colors = 256, iter.max = 10) {

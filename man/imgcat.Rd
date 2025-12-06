@@ -16,6 +16,8 @@ imgcat(
 \arguments{
 \item{path}{character, path to a image file.}
 
+\item{...}{other positional arguments will be omitted.}
+
 \item{max.colors}{integer, max colors of the palette. The maximum is 256.
 This parameter will be passed to \code{\link{sixelEncode}}.}
 

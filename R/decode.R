@@ -2,6 +2,8 @@
 #'
 #' Parse a SIXEL escape sequence and convert it to a three dimensional RGB array.
 #'
+#' @importFrom utils read.table
+#'
 #' @param data character, SIXEL escape sequence.
 #'
 #' @return A three dimensional RGB array with values ranging from 0 to 1.

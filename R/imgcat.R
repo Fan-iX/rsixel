@@ -32,6 +32,7 @@ blend_alpha <- function(image, background) {
 #' the specified background color.
 #'
 #' @param path character, path to a image file.
+#' @param ... other positional arguments will be omitted.
 #' @param max.colors integer, max colors of the palette. The maximum is 256. 
 #' This parameter will be passed to [`sixelEncode`].
 #' @param iter.max integer, maximum number of iterations for k-means clustering.
