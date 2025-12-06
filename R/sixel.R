@@ -17,6 +17,7 @@
 #'
 #' @return The device number (invisible).
 #' @export
+#' @useDynLib rsixel, .registration = TRUE
 #'
 #' @examples
 #' \dontrun{

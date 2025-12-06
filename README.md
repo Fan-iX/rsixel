@@ -53,4 +53,8 @@ imgcat("mpg.png")
 
 ### Decoding sixel sequence to an image
 
-not implemented yet.
+```r
+img <- jpeg::readJPEG(system.file("img", "Rlogo.jpg", package="jpeg"))
+sequence <- sixelEncode(img)
+img2 <- sixelEncode(sequence)
+```

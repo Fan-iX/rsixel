@@ -29,7 +29,7 @@ transparency. Default is "white".}
 This parameter will be passed to \code{cat}}
 }
 \value{
-None (invisible ‘NULL’).
+None (invisible 'NULL').
 }
 \description{
 Create SIXEL escape sequence for image file. \code{jpeg}, \code{png} or \code{magick} packages

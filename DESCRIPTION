@@ -1,13 +1,13 @@
 Package: rsixel
 Title: Sixel image format for R
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: 
     person("Weifan", "Lv", , "lvweifan@pku.edu.cn", role = c("aut", "cre"))
 Description: SIXEL image encoding / decoding for R.
 License: MIT License
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports:
     png
 Suggests:
