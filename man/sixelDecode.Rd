@@ -10,17 +10,17 @@ sixelDecode(data)
 \item{data}{character, SIXEL escape sequence.}
 }
 \value{
-A three dimensional RGB array with values ranging from 0 to 1.
+A raster array with values ranging from 0 to 1.
 The array has dimensions (height, width, 3) where the third dimension
 represents the R, G, and B color channels.
 }
 \description{
-Parse a SIXEL escape sequence and convert it to a three dimensional RGB array.
+Parse a SIXEL escape sequence and convert it to a raster array.
 }
 \examples{
-# Encode an image to SIXEL and decode it back
-img <- jpeg::readJPEG(system.file("img", "Rlogo.jpg", package="jpeg"))
-sixel_data <- sixelEncode(img, 4)
-decoded <- sixelDecode(sixel_data)
+# read sixel sequence
+sixel_file <- system.file("snake.six", package="rsixel")
+sixel_data <- readChar(sixel_file, file.info(sixel_file)$size)
+img <- sixelDecode(sixel_data)
 
 }

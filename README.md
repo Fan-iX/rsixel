@@ -54,7 +54,13 @@ imgcat("mpg.png")
 ### Decoding sixel sequence to an image
 
 ```r
-img <- jpeg::readJPEG(system.file("img", "Rlogo.jpg", package="jpeg"))
-sequence <- sixelEncode(img)
-img2 <- sixelEncode(sequence)
+sixel_file <- system.file("snake.six", package="rsixel")
+sixel_data <- readChar(sixel_file, file.info(sixel_file)$size)
+img <- sixelDecode(sixel_data)
+```
+
+You can use `readSIXEL` to read a sixel sequence file directly.
+
+```r
+img <- readSIXEL(system.file("snake.six", package="rsixel"))
 ```
