@@ -21,11 +21,14 @@ terminals that support SIXEL graphics.
 ```r
 library(rsixel)
 sixel()
-plot(c(1, 2))
+plot(iris$Petal.Width, iris$Petal.Length)
 dev.off()
 ```
 
 The sixel sequence of the plot will be printed to the console after `dev.off()`.
+
+> [!NOTE]
+> You need a terminal emulator that [support SIXEL graphics format](https://www.arewesixelyet.com/) to see the result.
 
 ### Encoding an image to sixel format
 
@@ -38,7 +41,7 @@ sixel_sequence <- sixelEncode(image, max.colors = 256, iter.max = 10)
 cat(sixel_sequence)
 ```
 
-You can use `imgcat` to preview images in R sessions directly.
+A helper function, `imgcat`, is provided to preview images in R sessions directly.
 
 ```r
 library(rsixel)
@@ -59,7 +62,7 @@ sixel_data <- readChar(sixel_file, file.info(sixel_file)$size)
 img <- sixelDecode(sixel_data)
 ```
 
-You can use `readSIXEL` to read a sixel sequence file directly.
+You can also use `readSIXEL` to read a SIXEL file directly.
 
 ```r
 img <- readSIXEL(system.file("snake.six", package="rsixel"))
