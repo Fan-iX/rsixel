@@ -58,7 +58,7 @@ imgcat("mpg.png")
 
 ```r
 sixel_file <- system.file("snake.six", package="rsixel")
-sixel_data <- readChar(sixel_file, file.info(sixel_file)$size)
+sixel_data <- readChar(sixel_file, file.size(sixel_file))
 img <- sixelDecode(sixel_data)
 ```
 

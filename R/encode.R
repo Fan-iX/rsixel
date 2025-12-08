@@ -28,19 +28,20 @@ sixelEncode <- function(image, max.colors = 256, iter.max = 10) {
   }
   height <- dim(image)[1]
   width <- dim(image)[2]
-  data <- apply(image, 3, identity)
-  max.colors <- min(max.colors,nrow(unique(data)))
-  kms <- kmeans(data, max.colors, iter.max = iter.max)
+  data <- apply(image, 3, identity)[,1:3]
+  uniq.data <- unique(data)
+  max.colors <- min(max.colors,nrow(uniq.data))
+  centers <- uniq.data[sample.int(nrow(uniq.data), max.colors), , drop = FALSE]
+  kms <- kmeans(data, centers, iter.max = iter.max)
   palette <- round(kms$centers * 100)
   data <- matrix(kms$cluster - 1, nrow = height)
   colors <- apply(palette[, 1:3], 1, paste, collapse = ";")
   str_pal <- paste(paste0("#", seq_along(colors) - 1, ";2;", colors), collapse = "")
+  powers_of_2 <- 2^(0:5)
   str_data <- lapply(split(seq_len(height), (seq_len(height) - 1) %/% 6), function(l) {
       band <- data[l, , drop = FALSE]
       str_band <- lapply(unique(as.vector(band)), function(c) {
-        s <- rle(apply(band == c, 2, function(v) {
-          sum(2 ^ (which(v) - 1))
-        }))
+        s <- rle(colSums((band == c) * powers_of_2[1:nrow(band)]))
         paste0("#", c, paste0(unlist(
           Map(function(l, v) {
             if (l > 3)
