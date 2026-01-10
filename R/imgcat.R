@@ -9,7 +9,6 @@ load_image <- function(file){
   } else {
     stop("Please install `jpeg`, `png` or `magick` package to read image files.", call. = FALSE)
   }
-  x
 }
 
 # Blend image with background color for pixels with transparency
@@ -46,7 +45,7 @@ blend_alpha <- function(image, background) {
 #' @export
 #'
 #' @examples
-#' imgcat(jpeg::readJPEG(system.file("img", "Rlogo.jpg", package="jpeg")))
+#' imgcat(system.file("img", "Rlogo.jpg", package="jpeg"))
 imgcat <- function(
   path,
   ...,

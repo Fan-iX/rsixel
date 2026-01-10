@@ -39,5 +39,5 @@ are required to read image files. Image with alpha channel will be blended with
 the specified background color.
 }
 \examples{
-imgcat(jpeg::readJPEG(system.file("img", "Rlogo.jpg", package="jpeg")))
+imgcat(system.file("img", "Rlogo.jpg", package="jpeg"))
 }
