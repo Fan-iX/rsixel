@@ -5,16 +5,19 @@
 \title{SIXEL graphics device}
 \usage{
 sixel(
+  file = "",
   width = 480,
   height = 480,
   max.colors = 256,
   iter.max = 10,
   background = "white",
-  file = "",
   ...
 )
 }
 \arguments{
+\item{file}{A connection, or a character string naming the file to print to.
+This parameter will be passed to \code{cat}. Default is "" (stdout).}
+
 \item{width}{integer, width of the output image in pixels. Default is 480.}
 
 \item{height}{integer, height of the output image in pixels. Default is 480.}
@@ -28,9 +31,6 @@ This parameter will be passed to \code{\link{sixelEncode}}. Default is 10.}
 \item{background}{character, background color to blend with for pixel with
 transparency. Default is "white".}
 
-\item{file}{A connection, or a character string naming the file to print to.
-This parameter will be passed to \code{cat}. Default is "" (stdout).}
-
 \item{...}{Additional arguments passed to \code{png()}.}
 }
 \value{
@@ -41,9 +41,7 @@ A graphics device that outputs SIXEL sequences to the console when closed.
 This device wraps the png() device and encodes the output as SIXEL.
 }
 \examples{
-\dontrun{
 sixel()
 plot(c(1, 2))
 dev.off()
-}
 }

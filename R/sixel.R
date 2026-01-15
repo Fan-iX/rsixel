@@ -3,6 +3,8 @@
 #' A graphics device that outputs SIXEL sequences to the console when closed.
 #' This device wraps the png() device and encodes the output as SIXEL.
 #'
+#' @param file A connection, or a character string naming the file to print to.
+#' This parameter will be passed to `cat`. Default is "" (stdout).
 #' @param width integer, width of the output image in pixels. Default is 480.
 #' @param height integer, height of the output image in pixels. Default is 480.
 #' @param max.colors integer, max colors of the palette. The maximum is 256.
@@ -11,8 +13,6 @@
 #' This parameter will be passed to [`sixelEncode`]. Default is 10.
 #' @param background character, background color to blend with for pixel with
 #' transparency. Default is "white".
-#' @param file A connection, or a character string naming the file to print to.
-#' This parameter will be passed to `cat`. Default is "" (stdout).
 #' @param ... Additional arguments passed to `png()`.
 #'
 #' @return The device number (invisible).
@@ -20,18 +20,16 @@
 #' @useDynLib rsixel, .registration = TRUE
 #'
 #' @examples
-#' \dontrun{
 #' sixel()
 #' plot(c(1, 2))
 #' dev.off()
-#' }
 sixel <- function(
+  file = "",
   width = 480,
   height = 480,
   max.colors = 256,
   iter.max = 10,
   background = "white",
-  file = "",
   ...
 ) {
   # Create a temporary PNG file

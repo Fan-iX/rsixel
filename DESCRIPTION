@@ -3,7 +3,10 @@ Title: Encoding and Decoding Sixel Images
 Version: 0.0.3
 Authors@R: 
     person("Weifan", "Lv", , "lvweifan@pku.edu.cn", role = c("aut", "cre"))
-Description: Functions for encoding and decoding sixel terminal images in pure R.
+Description: Provides a native R implementation for encoding and decoding 'sixel'
+    graphics (<https://vt100.net/docs/vt3xx-gp/chapter14.html>), and a dedicated
+    'sixel' graphics device that allows plots to be rendered directly within
+    compatible terminal emulators.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
