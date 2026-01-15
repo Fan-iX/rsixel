@@ -1,6 +1,6 @@
 Package: rsixel
 Title: Encoding and Decoding Sixel Images
-Version: 0.0.3
+Version: 0.0.4
 Authors@R: 
     person("Weifan", "Lv", , "lvweifan@pku.edu.cn", role = c("aut", "cre"))
 Description: Provides a native R implementation for encoding and decoding 'sixel'

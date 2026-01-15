@@ -40,6 +40,7 @@ sixel <- function(
     filename = tmp_file,
     width = width,
     height = height,
+    bg = "transparent",
     ...
   )
 
